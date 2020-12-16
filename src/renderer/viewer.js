@@ -22,7 +22,7 @@ class Viewer {
         console.log(`Blueprint contains ${uuids.length} unique uuids`, uuids);
         
         this.uuidDatabase.preloadUuids(uuids);
-        console.log(this.uuidDatabase.definitions);
+        console.log("Database contents:", this.uuidDatabase.definitions);
 
         console.log("view() done");
     }

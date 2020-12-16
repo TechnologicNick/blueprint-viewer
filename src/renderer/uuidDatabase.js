@@ -1,13 +1,16 @@
 class UuidDatabase {
     constructor(contentProvider) {
         this.contentProvider = contentProvider;
-        this.info = {};
+        this.definitions = {};
     }
 
     preloadUuids(uuids) {
         console.log("Preloading uuids:", uuids);
 
-        this.contentProvider.getShapesetDefinitions(uuids.filter(uuid => this.info[uuid] === undefined));
+        let defs = this.contentProvider.getShapesetDefinitions(uuids.filter(uuid => this.definitions[uuid] === undefined));
+        for (let [key, value] of Object.entries(defs)) {
+            this.definitions[key] = value;
+        }
     }
 }
 

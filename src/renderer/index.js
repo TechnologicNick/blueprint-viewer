@@ -16,7 +16,6 @@ let contentProvider = {
 
     getShapesetDefinitions: (uuids) => {
         let r = ipcRenderer.sendSync("getShapesetDefinitions", uuids);
-        console.log("getShapesetDefinitions", r);
         return r;
     }
 }
