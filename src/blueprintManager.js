@@ -1,7 +1,7 @@
 const fs = require("fs");
 const path = require("path");
-// const Blueprint = require("./renderer/blueprint");
-import Blueprint from "./renderer/blueprint.js";
+const Blueprint = require("./renderer/blueprint");
+// import Blueprint from "./renderer/blueprint.js";
 
 module.exports.fromDirectory = (pathDir) => {
     const blueprint = JSON.parse(fs.readFileSync(path.join(pathDir, "blueprint.json")));
@@ -12,6 +12,6 @@ module.exports.fromDirectory = (pathDir) => {
     bp.uri.blueprint = path.join(pathDir, "blueprint.json")
     bp.uri.description = path.join(pathDir, "description.json")
 
-    console.log(bp, bp.getPartUuids());
+    // console.log(bp, bp.getUuids());
     return bp;
 }

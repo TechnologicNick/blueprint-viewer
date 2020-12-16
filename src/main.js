@@ -1,6 +1,7 @@
 const { app, BrowserWindow, ipcMain } = require("electron");
 const path = require("path");
-import BlueprintManager from "./blueprint_manager.mjs";
+const BlueprintManager = require("./blueprintManager.js");
+const WorkshopModManager = require("./workshopModManager.js");
 
 // console.log(__dirname);
 // require("electron-reload")(__dirname, {
@@ -51,6 +52,27 @@ app.on("activate", () => {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and import them here.
+
 ipcMain.on("loadBlueprintFromFile", (event, pathDir) => {
     event.returnValue = BlueprintManager.fromDirectory(pathDir);
+});
+
+ipcMain.on("getShapesetDefinitions", (event, uuids) => {
+    let jsons = {};
+
+    for (let uuid of uuids) {
+        let mods = WorkshopModManager.getModsWithShapeUuid(uuid);
+        if (mods.length === 0) continue;
+
+        let mod = mods[0]; //TODO: Multiple mods can use the same uuid
+
+        jsons[uuid] = mod.shapes[uuid];
+    }
+
+    event.returnValue = jsons;
+});
+
+ipcMain.on("reloadMods", (event) => {
+    // The returnValue has to be set, otherwise it'll hold up execution
+    event.returnValue = WorkshopModManager.reloadMods();
 });

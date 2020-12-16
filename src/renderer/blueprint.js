@@ -1,5 +1,3 @@
-
-
 class Blueprint {
     constructor(blueprint, description) {
         this.blueprint = blueprint;
@@ -8,16 +6,19 @@ class Blueprint {
         this.uri = {};
     }
 
-    getPartUuids() {
+    getUuids() {
         let uuids = new Set();
 
         for (let body of this.blueprint.bodies) {
-            console.log(body);
-            // uuids.add(body)
+            for (let child of body.childs) {
+                uuids.add(child.shapeId)
+            }
         }
+
+        return Array.from(uuids);
     }
 
 }
 
-export default Blueprint;
-// module.exports = Blueprint;
+// export default Blueprint;
+module.exports = Blueprint;
