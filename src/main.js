@@ -25,7 +25,7 @@ const createWindow = () => {
     mainWindow.loadFile(path.join(__dirname, "renderer", "index.html"));
 
     // Open the DevTools.
-    mainWindow.webContents.openDevTools();
+    mainWindow.webContents.openDevTools({mode: "detach", activate: false});
 };
 
 // This method will be called when Electron has finished
