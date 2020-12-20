@@ -1,6 +1,8 @@
 const fs = require("fs");
 const THREE = require("three");
 eval(fs.readFileSync("./node_modules/three/examples/js/controls/OrbitControls.js").toString()); // Hack that adds THREE.OrbitalControls
+const Stats = require("stats.js");
+
 const Body = require("./body.js");
 const { Shape } = require("./shape.js");
 
@@ -27,6 +29,10 @@ class Viewer {
         this.renderer = new THREE.WebGLRenderer( { antialias: true } );
         this.renderer.setSize( window.innerWidth, window.innerHeight );
         document.getElementById("canvas-container").appendChild( this.renderer.domElement );
+
+        this.stats = new Stats();
+        this.stats.showPanel( 1 ); // 0: fps, 1: ms, 2: mb, 3+: custom
+        document.getElementById("canvas-container").appendChild( this.stats.dom );
 
         this.scene = new THREE.Scene();
 
@@ -61,8 +67,12 @@ class Viewer {
     }
 
     update() {
+        this.stats.begin();
+
         this.controls.update();
         this.renderer.render( this.scene, this.camera );
+
+        this.stats.end();
     }
 }
 

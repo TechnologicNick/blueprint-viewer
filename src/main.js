@@ -13,6 +13,8 @@ if (require("electron-squirrel-startup")) { // eslint-disable-line global-requir
     app.quit();
 }
 
+// app.commandLine.appendSwitch('disable-frame-rate-limit');
+
 const createWindow = () => {
     // Create the browser window.
     const mainWindow = new BrowserWindow({
