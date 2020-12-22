@@ -36,7 +36,7 @@ const createWindow = () => {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on("ready", async (event, launchInfo) => {
-    if (await PathHelper.findOrSelectInstallDir()) {
+    if (await PathHelper.findOrSelectSMInstallDir()) {
         createWindow();
     } else {
         app.quit();
