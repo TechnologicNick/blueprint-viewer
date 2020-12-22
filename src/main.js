@@ -1,7 +1,9 @@
-const { app, BrowserWindow, ipcMain } = require("electron");
+const { app, BrowserWindow, ipcMain, dialog } = require("electron");
 const path = require("path");
 const BlueprintManager = require("./blueprintManager.js");
 const WorkshopModManager = require("./workshopModManager.js");
+const PathHelper = require("./pathHelper.js");
+const { create } = require("domain");
 
 // console.log(__dirname);
 // require("electron-reload")(__dirname, {
@@ -33,7 +35,13 @@ const createWindow = () => {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on("ready", createWindow);
+app.on("ready", async (event, launchInfo) => {
+    if (await PathHelper.findOrSelectInstallDir()) {
+        createWindow();
+    } else {
+        app.quit();
+    }
+});
 
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
