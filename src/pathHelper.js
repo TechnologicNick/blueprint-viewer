@@ -4,17 +4,19 @@ const path = require("path");
 const fs = require("fs");
 
 class PathHelper {
+    static STEAM;
+    static INSTALLATION_DIR;
+
     static GAME_DATA;
     static SURVIVAL_DATA;
     static CHALLENGE_DATA;
 
     static USER_DIR;
-    static INSTALLATION_DIR;
 
-    static STEAM;
+
 
     static isValidSMInstallDir(dir) {
-        console.log("Validating", dir);
+        // console.log("Validating", dir);
         return fs.existsSync(path.join(dir, "Release", "ScrapMechanic.exe"));
     }
 
@@ -23,7 +25,7 @@ class PathHelper {
             regedit.list("HKLM\\SOFTWARE\\WOW6432Node\\Valve\\Steam", (err, result) => { //TODO: Test this on 32bit windows
                 
                 if (err !== null) {
-                    console.log(err);
+                    console.error("Error getting the Steam install directory from the registry", err);
                     reject(err.message);
                     return;
                 }
@@ -49,7 +51,7 @@ class PathHelper {
 
     static async findScrapMechanicInstallation() {
         await this.findSteamInstallation();
-        console.log(this);
+        // console.log(this);
 
         for (let lf of this.getSteamLibraryFolders()) {
             let inst = path.join(lf, "steamapps", "common", "Scrap Mechanic");
@@ -59,7 +61,7 @@ class PathHelper {
                 break;
             }
         }
-        console.log(this);
+        // console.log(this);
 
         return this.INSTALLATION_DIR;
     }
@@ -120,6 +122,12 @@ class PathHelper {
 
         // Continuing the launch
         return true;
+    }
+
+    static updatePaths() {
+        this.GAME_DATA = path.join(this.INSTALLATION_DIR, "Data");
+        this.SURVIVAL_DATA = path.join(this.INSTALLATION_DIR, "Survival");
+        this.CHALLENGE_DATA = path.join(this.INSTALLATION_DIR, "ChallengeData");
     }
 }
 
