@@ -129,6 +129,12 @@ class PathHelper {
         this.SURVIVAL_DATA = path.join(this.INSTALLATION_DIR, "Survival");
         this.CHALLENGE_DATA = path.join(this.INSTALLATION_DIR, "ChallengeData");
     }
+
+    static expandPathPlaceholders(p) {
+        return p.replace("$GAME_DATA", this.GAME_DATA)
+                .replace("$SURVIVAL_DATA", this.SURVIVAL_DATA)
+                .replace("$CHALLENGE_DATA", this.CHALLENGE_DATA);
+    }
 }
 
 module.exports = PathHelper;

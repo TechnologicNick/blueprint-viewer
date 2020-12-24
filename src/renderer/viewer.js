@@ -60,6 +60,7 @@ class Viewer {
         
         this.uuidDatabase.preloadUuids(uuids);
         console.log("Database contents:", this.uuidDatabase.definitions);
+        this.uuidDatabase.preloadRenderables(uuids);
 
         this.generateMeshes();
 

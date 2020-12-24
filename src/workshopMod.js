@@ -1,7 +1,8 @@
-const { timeStamp } = require("console");
 const fs = require("fs");
 const path = require("path");
 const stripJsonComments = require("strip-json-comments");
+const PathHelper = require("./pathHelper.js");
+let WorkshopModManager; // Circular dependency bypass
 
 class WorkshopMod {
     constructor(dir, description, isFake = false) {
@@ -38,6 +39,7 @@ class WorkshopMod {
                     this.shapes[shape.uuid] = {
                         type: "block",
                         uuid: shape.uuid,
+                        modLocalId: this.description.localId,
                         definition: shape
                     }
                 }
@@ -48,12 +50,22 @@ class WorkshopMod {
                     this.shapes[shape.uuid] = {
                         type: "part",
                         uuid: shape.uuid,
+                        modLocalId: this.description.localId,
                         definition: shape
                     }
                 }
             }
         }
     }
+
+    expandPathPlaceholders(p) {
+        p = p.replace("$MOD_DATA", this.dir);
+
+        WorkshopModManager ??= require("./workshopModManager.js"); // Circular dependency bypass
+
+        return WorkshopModManager.expandPathPlaceholders(p);
+    }
+
 }
 
 module.exports = WorkshopMod;

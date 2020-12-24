@@ -17,6 +17,11 @@ let contentProvider = {
     getShapesetDefinitions: (uuids) => {
         let r = ipcRenderer.sendSync("getShapesetDefinitions", uuids);
         return r;
+    },
+
+    expandPathPlaceholders: (p, shapeUuid) => {
+        let r = ipcRenderer.sendSync("expandPathPlaceholders", p, shapeUuid);
+        return r;
     }
 }
 

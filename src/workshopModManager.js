@@ -2,6 +2,7 @@ const fs = require("fs");
 const path = require("path");
 const stripJsonComments = require("strip-json-comments");
 const WorkshopMod = require("./workshopMod");
+const PathHelper = require("./pathHelper.js");
 
 class WorkshopModManager {
     static mods = {};
@@ -90,6 +91,19 @@ class WorkshopModManager {
 
     static getModsWithShapeUuid(uuid) {
         return Object.values(this.mods).filter((mod) => mod.shapes[uuid]);
+    }
+
+    static expandPathPlaceholders(p) {
+        let matches = Array.from(p.matchAll(/\$CONTENT_([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/g));
+
+        for (let m of matches) {
+            let modLocalId = m[1];
+            let mod = this.mods[modLocalId];
+
+            if (mod !== undefined) p = p.replace(m[0], mod.dir);
+        }
+
+        return PathHelper.expandPathPlaceholders(p);
     }
 }
 

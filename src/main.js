@@ -3,7 +3,6 @@ const path = require("path");
 const BlueprintManager = require("./blueprintManager.js");
 const WorkshopModManager = require("./workshopModManager.js");
 const PathHelper = require("./pathHelper.js");
-const { create } = require("domain");
 
 // console.log(__dirname);
 // require("electron-reload")(__dirname, {
@@ -86,4 +85,15 @@ ipcMain.on("getShapesetDefinitions", (event, uuids) => {
 ipcMain.on("reloadMods", (event) => {
     // The returnValue has to be set, otherwise it'll hold up execution
     event.returnValue = WorkshopModManager.reloadMods();
+});
+
+ipcMain.on("expandPathPlaceholders", (event, p, shapeUuid) => {
+    let mods = WorkshopModManager.getModsWithShapeUuid(shapeUuid);
+    let mod = mods[0]; //TODO: Multiple mods can use the same uuid
+
+    if (mod !== undefined) {
+        event.returnValue = mod.expandPathPlaceholders(p);
+    } else {
+        event.returnValue = WorkshopModManager.expandPathPlaceholders(p);
+    }
 });
