@@ -42,19 +42,21 @@ class Viewer {
         this.controls = new THREE.OrbitControls( this.camera, this.renderer.domElement );
     }
 
-    generateMeshes() {
+    async generateMeshes() {
         console.log(this.bp);
 
         for (let blueprintBody of this.bp.blueprint.bodies) {
             let body = new Body(blueprintBody, this.uuidDatabase);
 
             for (let shape of body.shapes) {
-                this.scene.add(shape.generateMesh());
+                let m = await shape.generateMesh();
+                console.log("hhhhhhhhhhhhh", m);
+                this.scene.add(m);
             }
         }
     }
 
-    view() {
+    async view() {
         let uuids = this.bp.getUuids();
         console.log(`Blueprint contains ${uuids.length} unique uuids`, uuids);
         
@@ -62,7 +64,13 @@ class Viewer {
         console.log("Database contents:", this.uuidDatabase.definitions);
         this.uuidDatabase.preloadRenderables(uuids);
 
-        this.generateMeshes();
+        // for (let uuid of uuids.filter(uuid => this.uuidDatabase.definitions[uuid].type !== "block")) {
+        //     let rend = this.uuidDatabase.renderables[uuid];
+
+        //     this.scene.add(await rend.getMesh())
+        // }
+
+        await this.generateMeshes();
 
         console.log("view() done");
     }

@@ -1,18 +1,25 @@
 const fs = require("fs");
 
 class Renderable {
-    constructor(renderableJson) {
+    lods;
+
+    constructor(renderableJson, contentProvider) {
         this.renderableJson = renderableJson;
+        this.contentProvider = contentProvider;
     }
 
-    static fromFile(file) {
-        return new this(JSON.parse(fs.readFileSync(file)));
+    static fromFile(file, contentProvider) {
+        return new this(JSON.parse(fs.readFileSync(file)), contentProvider);
+    }
+
+    sortLods() {
+        return this.lods = this.renderableJson.lodList.sort((a, b) => { return a.minViewSize - b.minViewSize });
     }
 
     getReferencedFiles() {
         let files = new Set();
 
-        for (let lod of this.renderableJson.lodList) {
+        for (let lod of this.lods ?? this.sortLods()) { // Sort if not already sorted
             files.add(lod.mesh); // lodList.mesh
 
             if (lod.subMeshMap) for (let mapItem of Object.values(lod.subMeshMap)) {

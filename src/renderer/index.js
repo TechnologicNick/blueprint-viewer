@@ -33,7 +33,7 @@ let vwr = new Viewer(contentProvider, db);
 vwr.init();
 
 vwr.loadBlueprintFromFile(TEST_BLUEPRINT_DIRECTORY);
-vwr.view();
+vwr.view().then(updateLoop);
 
 function updateLoop() {
     requestAnimationFrame( updateLoop );
@@ -41,4 +41,4 @@ function updateLoop() {
     vwr.update();
 }
 
-updateLoop();
+// updateLoop();

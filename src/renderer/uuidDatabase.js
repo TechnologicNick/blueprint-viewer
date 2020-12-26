@@ -25,9 +25,9 @@ class UuidDatabase {
             let rend;
 
             if (typeof(rendJson) === "string") {
-                rend = Renderable.fromFile(this.contentProvider.expandPathPlaceholders(rendJson, uuid));
+                rend = Renderable.fromFile(this.contentProvider.expandPathPlaceholders(rendJson, uuid), this.contentProvider);
             } else {
-                rend = new Renderable(rendJson);
+                rend = new Renderable(rendJson, this.contentProvider);
             }
 
             files = files.concat(rend.getReferencedFiles().map(f => this.contentProvider.expandPathPlaceholders(f, uuid)));

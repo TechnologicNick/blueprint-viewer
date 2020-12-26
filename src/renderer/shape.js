@@ -1,4 +1,7 @@
 const THREE = require("three");
+const MeshLoader = require("./meshLoader.js");
+
+const loader = new THREE.ObjectLoader();
 
 class Shape {
     color = new THREE.Color(0);
@@ -40,16 +43,16 @@ class Shape {
         this.zaxis = this.blueprintChild.zaxis;
     }
 
-    generateGeometry() {
+    async generateGeometry() {
         throw new Error("Not implemented");
     }
 
-    generateMaterial() {
+    async generateMaterial() {
         throw new Error("Not implemented");
     }
 
-    generateMesh() {
-        this.mesh = new THREE.Mesh(this.generateGeometry(), this.generateMaterial());
+    async generateMesh() {
+        this.mesh = new THREE.Mesh(await this.generateGeometry(), await this.generateMaterial());
         return this.mesh;
     }
 }
@@ -67,12 +70,13 @@ class Block extends Shape {
         this.bounds = new THREE.Vector3(this.blueprintChild.bounds.x, this.blueprintChild.bounds.y, this.blueprintChild.bounds.z);
     }
 
-    generateGeometry() {
-        this.geometry = new THREE.BoxGeometry(1, 1, 1); //TODO
+    async generateGeometry() {
+        this.geometry = new THREE.BoxGeometry(this.bounds); //TODO
+        console.log(this.bounds);
         return this.geometry;
     }
 
-    generateMaterial() {
+    async generateMaterial() {
         this.material = new THREE.MeshNormalMaterial();
         return this.material;
     }
@@ -91,12 +95,57 @@ class Part extends Shape {
         this.controller = this.blueprintChild.controller;
     }
 
-    generateGeometry() {
-        this.geometry = new THREE.BoxGeometry(this.bounds);
-        return this.geometry;
+    async generateMesh() {
+        return new Promise(async (resolve, reject) => {
+            let rend = this.uuidDatabase.renderables[this.blueprintChild.shapeId];
+            console.log("bbbbbb", rend, this.uuidDatabase, this.blueprintChild);
+
+            rend.lods ?? rend.sortLods();
+
+            
+
+            let r = await MeshLoader.load(rend.contentProvider.expandPathPlaceholders(rend.lods[0].mesh, this.blueprintChild.shapeId));
+            console.log("returned", r);
+            resolve(r);
+        });
     }
 
-    generateMaterial() {
+    async generateGeometry() {
+
+        return new Promise(async (resolve, reject) => {
+            let rend = this.uuidDatabase.renderables[this.blueprintChild.shapeId];
+            console.log("bbbbbb", rend, this.uuidDatabase, this.blueprintChild);
+
+            rend.lods ?? rend.sortLods();
+
+            // loader.load(
+            //     rend.contentProvider.expandPathPlaceholders(rend.lods[0].mesh, this.blueprintChild.shapeId),
+            //     (obj) => {
+            //         console.log("Loaded", obj);
+
+            //         this.geometry = obj;
+
+            //         resolve(obj);
+            //     },
+            //     (xhr) => {
+            //         console.log(`${xhr.loaded / xhr.total * 100}% loaded`);
+            //     },
+            //     (err) => {
+            //         console.error(err);
+            //         reject(err);
+            //     }
+            // );
+
+            let r = await MeshLoader.load(rend.contentProvider.expandPathPlaceholders(rend.lods[0].mesh, this.blueprintChild.shapeId));
+            console.log("returned", r);
+            resolve(r);
+        });
+
+        // this.geometry = new THREE.BoxGeometry(1, 1, 1);
+        // return this.geometry;
+    }
+
+    async generateMaterial() {
         this.material = new THREE.MeshNormalMaterial();
         return this.material;
     }
