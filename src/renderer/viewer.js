@@ -35,6 +35,7 @@ class Viewer {
         document.getElementById("canvas-container").appendChild( this.stats.dom );
 
         this.scene = new THREE.Scene();
+        this.scene.background = new THREE.Color( 0x222222 );
 
         this.camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.01, 100 );
         this.camera.position.set( -1.5, 2.5, 3.0 );

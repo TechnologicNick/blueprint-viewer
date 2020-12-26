@@ -70,8 +70,8 @@ class Block extends Shape {
         this.bounds = new THREE.Vector3(this.blueprintChild.bounds.x, this.blueprintChild.bounds.y, this.blueprintChild.bounds.z);
     }
 
-    async generateGeometry() {
-        this.geometry = new THREE.BoxGeometry(this.bounds); //TODO
+    generateGeometry() {
+        this.geometry = new THREE.BoxGeometry(this.bounds.x, this.bounds.y, this.bounds.z); //TODO
         console.log(this.bounds);
         return this.geometry;
     }
