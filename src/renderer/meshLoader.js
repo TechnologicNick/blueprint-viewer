@@ -41,6 +41,7 @@ class MeshLoader {
 
                 if (ext === ".dae") {
                     toReturn = obj.scene;
+                    toReturn.scale.set(1, 1, 1);
                 }
 
                 resolve(toReturn);
