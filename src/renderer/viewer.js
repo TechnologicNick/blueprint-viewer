@@ -38,6 +38,7 @@ class Viewer {
         this.scene.background = new THREE.Color( 0x222222 );
 
         this.camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.01, 100 );
+        this.camera.up.set(0, 0, 1);
         this.camera.position.set( -1.5, 2.5, 3.0 );
 
         this.controls = new THREE.OrbitControls( this.camera, this.renderer.domElement );

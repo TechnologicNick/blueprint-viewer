@@ -105,6 +105,13 @@ class Part extends Shape {
             
 
             let r = await MeshLoader.load(rend.contentProvider.expandPathPlaceholders(rend.lods[0].mesh, this.blueprintChild.shapeId));
+
+            r.traverse((object) => {
+                if (object.material) {
+                    object.material = new THREE.MeshNormalMaterial(); // Overwrite the default material for testing purposes
+                }
+            });
+
             console.log("returned", r);
             resolve(r);
         });
