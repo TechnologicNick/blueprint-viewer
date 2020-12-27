@@ -55,6 +55,11 @@ class Shape {
         this.mesh = new THREE.Mesh(await this.generateGeometry(), await this.generateMaterial());
         return this.mesh;
     }
+
+    applyTransform() {
+        console.log(this);
+        this.mesh.position.set(this.pos.x, this.pos.y, this.pos.z);
+    }
 }
 
 class Block extends Shape {
@@ -96,7 +101,7 @@ class Part extends Shape {
     }
 
     async generateMesh() {
-        return new Promise(async (resolve, reject) => {
+        return this.mesh = await new Promise(async (resolve, reject) => {
             let rend = this.uuidDatabase.renderables[this.blueprintChild.shapeId];
             console.log("bbbbbb", rend, this.uuidDatabase, this.blueprintChild);
 

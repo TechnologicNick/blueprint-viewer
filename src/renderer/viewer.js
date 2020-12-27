@@ -1,6 +1,8 @@
 const fs = require("fs");
 const THREE = require("three");
-eval(fs.readFileSync("./node_modules/three/examples/js/controls/OrbitControls.js").toString()); // Hack that adds THREE.OrbitalControls
+eval(fs.readFileSync("./node_modules/three/examples/js/controls/OrbitControls.js").toString()); // Hack that adds THREE.OrbitControls
+eval(fs.readFileSync("./node_modules/three/examples/js/geometries/ConvexGeometry.js").toString()); // Hack that adds THREE.ConvexGeometry
+eval(fs.readFileSync("./node_modules/three/examples/js/math/ConvexHull.js").toString()); // Hack that adds THREE.ConvexHull
 const Stats = require("stats.js");
 
 const Body = require("./body.js");
@@ -39,7 +41,7 @@ class Viewer {
 
         this.camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.01, 100 );
         this.camera.up.set(0, 0, 1);
-        this.camera.position.set( -1.5, 2.5, 3.0 );
+        this.camera.position.set(0, 0, 0);
 
         this.controls = new THREE.OrbitControls( this.camera, this.renderer.domElement );
     }
@@ -53,6 +55,9 @@ class Viewer {
             for (let shape of body.shapes) {
                 let m = await shape.generateMesh();
                 console.log("hhhhhhhhhhhhh", m);
+
+                shape.applyTransform();
+
                 this.scene.add(m);
             }
         }
@@ -73,8 +78,21 @@ class Viewer {
         // }
 
         await this.generateMeshes();
+        this.centerCamera();
 
         console.log("view() done");
+    }
+
+    centerCamera() {
+        let centers = this.scene.children.map(child => child.getWorldPosition());
+
+        if (centers.length === 0) return;
+        while (centers.length < 4) centers.push(centers[0]); // ConvexHull requires at least 4 vertices
+
+        let geom = new THREE.ConvexGeometry(centers);
+        geom.computeBoundingSphere();
+        this.controls.target = geom.boundingSphere.center;
+        console.log("Centered camera position to", geom.boundingSphere.center);
     }
 
     update() {
@@ -82,6 +100,8 @@ class Viewer {
 
         this.controls.update();
         this.renderer.render( this.scene, this.camera );
+
+        // console.log(this.scene.children);
 
         this.stats.end();
     }
