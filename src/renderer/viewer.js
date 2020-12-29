@@ -49,17 +49,21 @@ class Viewer {
     async generateMeshes() {
         console.log(this.bp);
 
+        this.bodies = [];
+
         for (let blueprintBody of this.bp.blueprint.bodies) {
             let body = new Body(blueprintBody, this.uuidDatabase);
 
             for (let shape of body.shapes) {
-                let m = await shape.generateMesh();
+                let m = await shape.generateObject3D();
                 console.log("hhhhhhhhhhhhh", m);
 
                 shape.applyTransform();
 
                 this.scene.add(m);
             }
+
+            this.bodies.push(body);
         }
     }
 
@@ -79,6 +83,16 @@ class Viewer {
 
         await this.generateMeshes();
         this.centerCamera();
+
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "q") {
+                for (let body of this.bodies) {
+                    for (let shape of body.shapes) {
+                        shape.nextRotationIndex();
+                    }
+                }
+            }
+        }, false);
 
         console.log("view() done");
     }

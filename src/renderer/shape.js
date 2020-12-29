@@ -1,7 +1,46 @@
+const { MathUtils } = require("three");
 const THREE = require("three");
 const MeshLoader = require("./meshLoader.js");
 
 const loader = new THREE.ObjectLoader();
+
+const rightAngle = MathUtils.DEG2RAD * 90;
+const axesToRotIndex = {
+    "1,2":   0, // TODO
+    "1,3":   0, // TODO
+    "1,-2":  1,
+    "1,-3":  0, // TODO
+    "2,1":   0, // TODO
+    "2,3":   0, // TODO
+    "2,-1":  0, // TODO
+    "2,-3":  0, // TODO
+    "3,1":   0, // TODO
+    "3,2":   0, // TODO
+    "3,-1":  0, // TODO
+    "3,-2":  0, // TODO
+    "-1,2":  0, // TODO
+    "-1,3":  0, // TODO
+    "-1,-2": 0, // TODO
+    "-1,-3": 0, // TODO
+    "-2,1":  0, // TODO
+    "-2,3":  0, // TODO
+    "-2,-1": 0, // TODO
+    "-2,-3": 0, // TODO
+    "-3,1":  0, // TODO
+    "-3,2":  19,
+    "-3,-1": 0, // TODO
+    "-3,-2": 0 // TODO
+}
+
+const axisToEuler = {};
+
+for (const [axes, rotIndex] of Object.entries(axesToRotIndex)) {
+    axisToEuler[axes] = new THREE.Euler().setFromVector3(new THREE.Vector3(
+        rightAngle * ((rotIndex >> 0) & 3),
+        rightAngle * ((rotIndex >> 2) & 3),
+        rightAngle * ((rotIndex >> 4) & 3)
+    ));
+}
 
 class Shape {
     color = new THREE.Color(0);
@@ -43,22 +82,21 @@ class Shape {
         this.zaxis = this.blueprintChild.zaxis;
     }
 
-    async generateGeometry() {
+    async generateObject3D() {
         throw new Error("Not implemented");
-    }
-
-    async generateMaterial() {
-        throw new Error("Not implemented");
-    }
-
-    async generateMesh() {
-        this.mesh = new THREE.Mesh(await this.generateGeometry(), await this.generateMaterial());
-        return this.mesh;
     }
 
     applyTransform() {
-        console.log(this);
-        this.mesh.position.set(this.pos.x, this.pos.y, this.pos.z);
+        this.object3D.traverse((child) => {
+            if (child.geometry) {
+                child.geometry.translate(this.bounds.x / 2, this.bounds.y / 2, this.bounds.z / 2);
+            }
+        })
+        this.object3D.position.set(this.pos.x, this.pos.y, this.pos.z);
+    }
+
+    nextRotationIndex() {
+
     }
 }
 
@@ -76,14 +114,15 @@ class Block extends Shape {
     }
 
     generateGeometry() {
-        this.geometry = new THREE.BoxGeometry(this.bounds.x, this.bounds.y, this.bounds.z); //TODO
-        console.log(this.bounds);
-        return this.geometry;
+        return this.geometry = new THREE.BoxGeometry(this.bounds.x, this.bounds.y, this.bounds.z);
     }
 
     async generateMaterial() {
-        this.material = new THREE.MeshNormalMaterial();
-        return this.material;
+        return this.material = new THREE.MeshNormalMaterial();
+    }
+
+    async generateObject3D() {
+        return this.object3D = new THREE.Mesh(await this.generateGeometry(), await this.generateMaterial());
     }
 }
 
@@ -98,10 +137,25 @@ class Part extends Shape {
         super.deserialize();
 
         this.controller = this.blueprintChild.controller;
+        
+        let def = this.uuidDatabase.definitions[this.blueprintChild.shapeId].definition;
+        if (def.box) {
+            this.bounds = new THREE.Vector3(def.box.x, def.box.y, def.box.z);
+        } else if (def.hull) {
+            this.bounds = new THREE.Vector3(def.hull.x, def.hull.y, def.hull.z);
+        } else if (def.cylinder) {
+            if (def.cylinder.axis === "X")      this.bounds = new THREE.Vector3(def.cylinder.depth, def.cylinder.diameter, def.cylinder.diameter);
+            else if (def.cylinder.axis === "Y") this.bounds = new THREE.Vector3(def.cylinder.diameter, def.cylinder.depth, def.cylinder.diameter);
+            else if (def.cylinder.axis === "Z") this.bounds = new THREE.Vector3(def.cylinder.diameter, def.cylinder.diameter, def.cylinder.depth);
+        } else if (def.sphere) {
+            this.bounds = new THREE.Vector3(def.sphere.diameter, def.sphere.diameter, def.sphere.diameter);
+        } else {
+            throw new Error("No collision found");
+        }
     }
 
-    async generateMesh() {
-        return this.mesh = await new Promise(async (resolve, reject) => {
+    async generateObject3D() {
+        return this.object3D = await new Promise(async (resolve, reject) => {
             let rend = this.uuidDatabase.renderables[this.blueprintChild.shapeId];
             console.log("bbbbbb", rend, this.uuidDatabase, this.blueprintChild);
 
@@ -122,44 +176,25 @@ class Part extends Shape {
         });
     }
 
-    async generateGeometry() {
+    applyTransform() {
+        super.applyTransform();
 
-        return new Promise(async (resolve, reject) => {
-            let rend = this.uuidDatabase.renderables[this.blueprintChild.shapeId];
-            console.log("bbbbbb", rend, this.uuidDatabase, this.blueprintChild);
-
-            rend.lods ?? rend.sortLods();
-
-            // loader.load(
-            //     rend.contentProvider.expandPathPlaceholders(rend.lods[0].mesh, this.blueprintChild.shapeId),
-            //     (obj) => {
-            //         console.log("Loaded", obj);
-
-            //         this.geometry = obj;
-
-            //         resolve(obj);
-            //     },
-            //     (xhr) => {
-            //         console.log(`${xhr.loaded / xhr.total * 100}% loaded`);
-            //     },
-            //     (err) => {
-            //         console.error(err);
-            //         reject(err);
-            //     }
-            // );
-
-            let r = await MeshLoader.load(rend.contentProvider.expandPathPlaceholders(rend.lods[0].mesh, this.blueprintChild.shapeId));
-            console.log("returned", r);
-            resolve(r);
-        });
-
-        // this.geometry = new THREE.BoxGeometry(1, 1, 1);
-        // return this.geometry;
+        let rot = axisToEuler[`${this.xaxis},${this.zaxis}`];
+        this.object3D.rotation.setFromVector3(rot.toVector3());
     }
 
-    async generateMaterial() {
-        this.material = new THREE.MeshNormalMaterial();
-        return this.material;
+    nextRotationIndex() { // Function used for finding the correct rotation index
+        this.rotIndex ??= 0;
+
+        this.object3D.rotation.set(
+            rightAngle * ((this.rotIndex >> 0) & 3),
+            rightAngle * ((this.rotIndex >> 2) & 3),
+            rightAngle * ((this.rotIndex >> 4) & 3)
+        )
+
+        console.log("Rotation set to index", this.rotIndex, "\t", ((this.rotIndex >> 0) & 3), ((this.rotIndex >> 2) & 3), ((this.rotIndex >> 4) & 3));
+
+        this.rotIndex++;
     }
 }
 
