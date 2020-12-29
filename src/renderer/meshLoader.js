@@ -1,6 +1,5 @@
 const fs = require("fs");
 const path = require("path");
-const { Mesh } = require("three");
 const THREE = require("three");
 
 // Hack to load a library required by FBXLoader.js
@@ -31,11 +30,9 @@ class MeshLoader {
         return new Promise((resolve, reject) => {
             let ext = path.extname(url);
             let loader = this.loaders[ext];
-            // let loader = this.manager.getHandler(url);
-            console.log("loader", url, loader);
 
             loader.load(url, (obj) => {
-                console.log("LOADED", obj);
+                console.log("[MeshLoader] Loaded", obj);
 
                 let toReturn = obj;
 

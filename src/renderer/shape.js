@@ -2,8 +2,6 @@ const { MathUtils } = require("three");
 const THREE = require("three");
 const MeshLoader = require("./meshLoader.js");
 
-const loader = new THREE.ObjectLoader();
-
 const rightAngle = MathUtils.DEG2RAD * 90;
 const axesToRotIndex = {
     "1,2":   3,
@@ -56,7 +54,6 @@ class Shape {
 
     static fromBlueprintChild(blueprintChild, uuidDatabase) {
         let def = uuidDatabase.definitions[blueprintChild.shapeId];
-        console.log(def);
 
         let instance;
 
@@ -157,7 +154,7 @@ class Part extends Shape {
     async generateObject3D() {
         return this.object3D = await new Promise(async (resolve, reject) => {
             let rend = this.uuidDatabase.renderables[this.blueprintChild.shapeId];
-            console.log("bbbbbb", rend, this.uuidDatabase, this.blueprintChild);
+            console.log("[generateObject3D] Renderable:", rend, this.uuidDatabase, this.blueprintChild);
 
             rend.lods ?? rend.sortLods();
 
@@ -171,7 +168,7 @@ class Part extends Shape {
                 }
             });
 
-            console.log("returned", r);
+            console.log("[generateObject3D] Returning", r);
             resolve(r);
         });
     }

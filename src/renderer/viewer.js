@@ -56,7 +56,6 @@ class Viewer {
 
             for (let shape of body.shapes) {
                 let m = await shape.generateObject3D();
-                console.log("hhhhhhhhhhhhh", m);
 
                 shape.applyTransform();
 
