@@ -6,30 +6,30 @@ const loader = new THREE.ObjectLoader();
 
 const rightAngle = MathUtils.DEG2RAD * 90;
 const axesToRotIndex = {
-    "1,2":   0, // TODO
-    "1,3":   0, // TODO
-    "1,-2":  1,
-    "1,-3":  0, // TODO
-    "2,1":   0, // TODO
-    "2,3":   0, // TODO
-    "2,-1":  0, // TODO
-    "2,-3":  0, // TODO
-    "3,1":   0, // TODO
-    "3,2":   0, // TODO
-    "3,-1":  0, // TODO
-    "3,-2":  0, // TODO
-    "-1,2":  0, // TODO
-    "-1,3":  0, // TODO
-    "-1,-2": 0, // TODO
-    "-1,-3": 0, // TODO
-    "-2,1":  0, // TODO
-    "-2,3":  0, // TODO
-    "-2,-1": 0, // TODO
-    "-2,-3": 0, // TODO
-    "-3,1":  0, // TODO
+    "1,2":   3,
+    "1,3":   0,
+    "1,-2":  1, //43
+    "1,-3":  2,
+    "2,1":   5,
+    "2,3":   16,
+    "2,-1":  15,
+    "2,-3":  24,
+    "3,1":   6,
+    "3,2":   25,
+    "3,-1":  12,
+    "3,-2":  17,
+    "-1,2":  9, //35
+    "-1,3":  10,
+    "-1,-2": 11,
+    "-1,-3": 8,
+    "-2,1":  7,
+    "-2,3":  26,
+    "-2,-1": 13,
+    "-2,-3": 18,
+    "-3,1":  4, //23
     "-3,2":  19,
-    "-3,-1": 0, // TODO
-    "-3,-2": 0 // TODO
+    "-3,-1": 14,
+    "-3,-2": 27
 }
 
 const axisToEuler = {};
@@ -192,7 +192,7 @@ class Part extends Shape {
             rightAngle * ((this.rotIndex >> 4) & 3)
         )
 
-        console.log("Rotation set to index", this.rotIndex, "\t", ((this.rotIndex >> 0) & 3), ((this.rotIndex >> 2) & 3), ((this.rotIndex >> 4) & 3));
+        console.log("Rotation set to index", this.rotIndex, "\t", ((this.rotIndex >> 0) & 3), ((this.rotIndex >> 2) & 3), ((this.rotIndex >> 4) & 3), this.object3D.quaternion);
 
         this.rotIndex++;
     }
