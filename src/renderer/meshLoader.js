@@ -19,17 +19,19 @@ class MeshLoader {
     }
 
     static manager = new THREE.LoadingManager(() => {
-        console.log("Done loading");
+        console.log("[MeshLoader] Done loading");
     }, (url, loaded, total) => {
-        console.log("onProgress:", url, loaded, total);
+        console.log("[MeshLoader] onProgress:", url, loaded, total);
     }, (url) => {
-        console.error("An error occured while loading", url);
+        console.error("[MeshLoader] An error occured while loading", url);
     })
 
     static load(url) {
         return new Promise((resolve, reject) => {
-            let ext = path.extname(url);
+            let ext = path.extname(url).toLowerCase();
             let loader = this.loaders[ext];
+
+            if (loader === undefined) reject(`No mesh loader for ${ext} model`);
 
             loader.load(url, (obj) => {
                 console.log("[MeshLoader] Loaded", obj);
