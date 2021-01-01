@@ -25,17 +25,17 @@ class TextureLoader {
 
             loader.load(url, (texture) => {
                 console.log("[TextureLoader] Loaded", url, texture);
-                // let ctx = texture.image.getContext("2d");
-                // console.log(ctx.getImageData(0, 0, 100, 100));
 
                 let toReturn = texture;
 
                 if (ext === ".tga") {
-                    // let ctx = texture.image.getContext("2d");
-                    // console.log(ctx.getImageData(0, 0, texture.image.width, texture.image.height));
-                    // console.log(toReturn);
+                    
                 } else {
-                    console.log(texture.image);
+                    // Render to a canvas to apply the color later                    
+                    let cvs = new OffscreenCanvas(texture.image.width, texture.image.height);
+                    let ctx = cvs.getContext("2d");
+                    ctx.drawImage(texture.image, 0, 0);
+                    texture.image = cvs;
                 }
 
                 resolve(toReturn);
