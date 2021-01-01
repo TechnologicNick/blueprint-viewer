@@ -5,6 +5,7 @@ class UuidDatabase {
         this.contentProvider = contentProvider;
         this.definitions = {};
         this.renderables = {};
+        this.loadedFiles = {};
     }
 
     preloadUuids(uuids) {

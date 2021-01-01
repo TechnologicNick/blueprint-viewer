@@ -120,7 +120,7 @@ class Block extends Shape {
 
         console.log(def);
 
-        let dif = await TextureLoader.load(this.uuidDatabase.contentProvider.expandPathPlaceholders(def.definition.dif, this.blueprintChild.shapeId));
+        let dif = await TextureLoader.load(this.uuidDatabase.contentProvider.expandPathPlaceholders(def.definition.dif, this.blueprintChild.shapeId), this.uuidDatabase);
         // let dif = await TextureLoader.load("C:\\Program Files (x86)\\Steam\\steamapps\\common\\Scrap Mechanic\\Data\\Textures\\transparent.tga");
         // let asg = await TextureLoader.load(this.uuidDatabase.contentProvider.expandPathPlaceholders(definition.asg, this.blueprintChild.shapeId));
         // let nor = await TextureLoader.load(this.uuidDatabase.contentProvider.expandPathPlaceholders(definition.nor, this.blueprintChild.shapeId));

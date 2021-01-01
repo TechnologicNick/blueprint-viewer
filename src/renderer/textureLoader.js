@@ -18,7 +18,12 @@ class TextureLoader {
         console.error("[TextureLoader] An error occured while loading", url);
     })
 
-    static load(url) {
+    static load(url, uuidDatabase) {
+        // Check if file has been loaded previously
+        if (uuidDatabase && uuidDatabase.loadedFiles[url]) {
+            return Promise.resolve(new THREE.Texture().copy(uuidDatabase.loadedFiles[url]));
+        }
+
         return new Promise((resolve, reject) => {
             let ext = path.extname(url).toLowerCase();
             let loader = this.loaders[ext] || this.loaders.default;
@@ -37,6 +42,8 @@ class TextureLoader {
                     ctx.drawImage(texture.image, 0, 0);
                     texture.image = cvs;
                 }
+
+                if (uuidDatabase) uuidDatabase.loadedFiles[url] = toReturn;
 
                 resolve(toReturn);
             });
