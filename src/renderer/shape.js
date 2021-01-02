@@ -121,39 +121,12 @@ class Block extends Shape {
         console.log(def);
 
         let dif = await TextureLoader.load(this.uuidDatabase.contentProvider.expandPathPlaceholders(def.definition.dif, this.blueprintChild.shapeId), this.uuidDatabase);
-        // let dif = await TextureLoader.load("C:\\Program Files (x86)\\Steam\\steamapps\\common\\Scrap Mechanic\\Data\\Textures\\transparent.tga");
+        dif = TextureLoader.cloneTexture(dif); // Clone the texture so colors can be applied to all shapes that use this texture
+        TextureLoader.applyColor(dif, this.color);
+
         // let asg = await TextureLoader.load(this.uuidDatabase.contentProvider.expandPathPlaceholders(definition.asg, this.blueprintChild.shapeId));
         // let nor = await TextureLoader.load(this.uuidDatabase.contentProvider.expandPathPlaceholders(definition.nor, this.blueprintChild.shapeId));
 
-        // dif.format = THREE.RGBFormat;
-
-        // dif.premultiplyAlpha = true;
-        // dif.blending = THREE.CustomBlending;
-        // dif.blendEquation = THREE.MaxEquation;
-        // dif.blendSrc = THREE.OneFactor;
-        // dif.blendDst = THREE.OneFactor;
-
-        // new THREE.Texture().mapping
-
-        if (dif.image instanceof OffscreenCanvas) {
-            let ctx = dif.image.getContext("2d");
-            let imageData = ctx.getImageData(0, 0, dif.image.width, dif.image.height);
-            console.log(imageData);
-
-            if (imageData.data.length / (imageData.width * imageData.height) !== 4) { // check if 4 bytes per pixel
-                console.error("Texture doesn't have an alpha channel!");
-            } else {
-                for (let i = 0; i < imageData.data.length; i += 4) {
-                    const a = imageData.data[i + 3];
-                    imageData.data[i + 0] = imageData.data[i + 0] + (255-a) * this.color.r;
-                    imageData.data[i + 1] = imageData.data[i + 1] + (255-a) * this.color.g;
-                    imageData.data[i + 2] = imageData.data[i + 2] + (255-a) * this.color.b;
-                    imageData.data[i + 3] = 255;
-                }
-
-                ctx.putImageData(imageData, 0, 0);
-            }
-        }
 
         return this.material = new THREE.MeshBasicMaterial({
             // color: this.color,

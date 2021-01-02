@@ -23,9 +23,7 @@ class TextureLoader {
         if (uuidDatabase && uuidDatabase.loadedFiles[url]) {
             let cached = uuidDatabase.loadedFiles[url];
             
-            let texture = this.cloneTexture(cached);
-
-            return Promise.resolve(texture);
+            return Promise.resolve(cached);
         }
 
         return new Promise((resolve, reject) => {
@@ -49,7 +47,7 @@ class TextureLoader {
 
                 if (uuidDatabase) uuidDatabase.loadedFiles[url] = toReturn;
 
-                resolve(this.cloneTexture(toReturn));
+                resolve(toReturn);
             });
         });
     }
@@ -67,6 +65,33 @@ class TextureLoader {
         let cloned = new THREE.CanvasTexture(image);
         // console.log("Cloned", cloned);
         return cloned;
+    }
+
+    static applyColor(texture, color) {
+        if (!(texture.image instanceof OffscreenCanvas)) {
+            console.warn("Can't apply color to texture because it's not an OffscreenCanvas!", texture);
+            return texture;
+        }
+
+        let ctx = texture.image.getContext("2d");
+        let imageData = ctx.getImageData(0, 0, texture.image.width, texture.image.height);
+        console.log(imageData);
+
+        if (imageData.data.length / (imageData.width * imageData.height) !== 4) { // check if 4 bytes per pixel
+            console.error("Texture doesn't have an alpha channel!");
+        } else {
+            for (let i = 0; i < imageData.data.length; i += 4) {
+                const a = imageData.data[i + 3];
+                imageData.data[i + 0] = imageData.data[i + 0] + (255-a) * color.r;
+                imageData.data[i + 1] = imageData.data[i + 1] + (255-a) * color.g;
+                imageData.data[i + 2] = imageData.data[i + 2] + (255-a) * color.b;
+                imageData.data[i + 3] = 255;
+            }
+
+            ctx.putImageData(imageData, 0, 0);
+        }
+
+        return texture;
     }
 }
 
