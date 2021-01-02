@@ -167,22 +167,58 @@ class Part extends Shape {
         }
     }
 
+    async generateMaterialFromSubMesh(subMesh) {
+        let dif = await TextureLoader.load(this.uuidDatabase.contentProvider.expandPathPlaceholders(subMesh.textureList[0], this.blueprintChild.shapeId), this.uuidDatabase);
+        dif = TextureLoader.cloneTexture(dif); // Clone the texture so colors can be applied to all shapes that use this texture
+        TextureLoader.applyColor(dif, this.color);
+
+        return this.material = new THREE.MeshBasicMaterial({
+            map: dif
+        });
+    }
+
     async generateObject3D() {
         return this.object3D = await new Promise(async (resolve, reject) => {
             let rend = this.uuidDatabase.renderables[this.blueprintChild.shapeId];
             console.log("[generateObject3D] Renderable:", rend, this.uuidDatabase, this.blueprintChild);
 
             rend.lods ?? rend.sortLods();
+            let lod = rend.lods[0];
 
-            
+            let r = await MeshLoader.load(rend.contentProvider.expandPathPlaceholders(lod.mesh, this.blueprintChild.shapeId));
 
-            let r = await MeshLoader.load(rend.contentProvider.expandPathPlaceholders(rend.lods[0].mesh, this.blueprintChild.shapeId));
+            if (lod.subMeshList){
+                let objects = [];
+                r.traverse((object) => {
+                    if (object.material) {
+                        objects.push(object);
+                    }
+                });
 
-            r.traverse((object) => {
-                if (object.material) {
-                    object.material = new THREE.MeshNormalMaterial(); // Overwrite the default material for testing purposes
+                let i = 0;
+                for (let object of object) {
+                    let subMesh = lod.subMeshList[i++];
+
+                    object.material = await this.generateMaterialFromSubMesh(subMesh);
                 }
-            });
+            } else if (lod.subMeshMap) {
+                let objects = {};
+                r.traverse((object) => {
+                    if (object.material) {
+                        objects[object.material.name] = object;
+                    }
+                });
+
+                for (let [name, object] of Object.entries(objects)) {
+                    let subMesh = lod.subMeshMap[name];
+
+                    if (subMesh) {
+                        object.material = await this.generateMaterialFromSubMesh(subMesh);
+                    }
+                }
+            } else {
+                console.warn("No subMesh found in renderable", rend);
+            }
 
             console.log("[generateObject3D] Returning", r);
             resolve(r);
