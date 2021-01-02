@@ -21,7 +21,11 @@ class TextureLoader {
     static load(url, uuidDatabase) {
         // Check if file has been loaded previously
         if (uuidDatabase && uuidDatabase.loadedFiles[url]) {
-            return Promise.resolve(new THREE.Texture().copy(uuidDatabase.loadedFiles[url]));
+            let cached = uuidDatabase.loadedFiles[url];
+            
+            let texture = this.cloneTexture(cached);
+
+            return Promise.resolve(texture);
         }
 
         return new Promise((resolve, reject) => {
@@ -45,9 +49,24 @@ class TextureLoader {
 
                 if (uuidDatabase) uuidDatabase.loadedFiles[url] = toReturn;
 
-                resolve(toReturn);
+                resolve(this.cloneTexture(toReturn));
             });
         });
+    }
+
+    static cloneTexture(texture) {
+        if (!(texture.image instanceof OffscreenCanvas)) {
+            console.warn("Can't clone texture because it's not an OffscreenCanvas!", texture);
+            return texture;
+        }
+
+        let image = new OffscreenCanvas(texture.image.width, texture.image.height);
+        let ctx = image.getContext("2d");
+        ctx.drawImage(texture.image, 0, 0);
+
+        let cloned = new THREE.CanvasTexture(image);
+        // console.log("Cloned", cloned);
+        return cloned;
     }
 }
 
