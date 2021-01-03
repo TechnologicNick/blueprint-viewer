@@ -97,15 +97,41 @@ class Viewer {
     }
 
     centerCamera() {
-        let centers = this.scene.children.map(child => child.getWorldPosition());
+        try {
+            let centers = this.scene.children.map(child => {
+                return child.children.filter(subChild => subChild.name === "shapeCenter")[0].getWorldPosition(new THREE.Vector3());
+            });
 
-        if (centers.length === 0) return;
-        while (centers.length < 4) centers.push(centers[0]); // ConvexHull requires at least 4 vertices
+            let center;
 
-        let geom = new THREE.ConvexGeometry(centers);
-        geom.computeBoundingSphere();
-        this.controls.target = geom.boundingSphere.center;
-        console.log("Centered camera position to", geom.boundingSphere.center);
+            switch (centers.length) {
+                case 0:
+                    center = new THREE.Vector3(0, 0, 0);
+                    break;
+                case 1:
+                    center = centers[0];
+                    break;
+                case 2:
+                    center = new THREE.Vector3().addVectors(centers[0], centers[1]).divideScalar(2);
+                    break;
+                case 3:
+                    // It's not perfect but the centeroid lies inside the plane
+                    let centeroid = new THREE.Vector3().add(centers[0]).add(centers[1]).add(centers[2]).divideScalar(3);
+                    centers.push(centeroid.add(new THREE.Vector3(0, 0, 0.01))); // Add the centeroid to the point list to compute the bounding sphere
+                default:
+                    let geom = new THREE.ConvexGeometry(centers);
+                    geom.computeBoundingSphere();
+                    center = geom.boundingSphere.center;
+            }
+
+            if (isNaN(center.x) || isNaN(center.y) || isNaN(center.z)) throw new Error("Vector3 has a NaN coordinate!");
+
+            console.log("Centered camera position to", center);
+            return this.controls.target = center;
+        } catch(ex) {
+            console.error("Failed to center camera:", ex);
+            return this.controls.target = new THREE.Vector3(0, 0, 0);
+        }
     }
 
     update() {

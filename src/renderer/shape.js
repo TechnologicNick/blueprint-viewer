@@ -93,6 +93,15 @@ class Shape {
         this.object3D.position.set(this.pos.x, this.pos.y, this.pos.z);
     }
 
+    addUserData() {
+        this.object3D.userData.shape = this;
+        
+        let center = new THREE.Group();
+        center.name = "shapeCenter";
+        center.position.set(this.bounds.x, this.bounds.y, this.bounds.z).multiplyScalar(0.5);
+        this.object3D.add(center);
+    }
+
     nextRotationIndex() {
 
     }
@@ -135,7 +144,9 @@ class Block extends Shape {
     }
 
     async generateObject3D() {
-        return this.object3D = new THREE.Mesh(await this.generateGeometry(), await this.generateMaterial());
+        this.object3D = new THREE.Mesh(await this.generateGeometry(), await this.generateMaterial());
+        this.addUserData();
+        return this.object3D;
     }
 }
 
@@ -178,7 +189,7 @@ class Part extends Shape {
     }
 
     async generateObject3D() {
-        return this.object3D = await new Promise(async (resolve, reject) => {
+        this.object3D = await new Promise(async (resolve, reject) => {
             let rend = this.uuidDatabase.renderables[this.blueprintChild.shapeId];
             console.log("[generateObject3D] Renderable:", rend, this.uuidDatabase, this.blueprintChild);
 
@@ -223,6 +234,9 @@ class Part extends Shape {
             console.log("[generateObject3D] Returning", r);
             resolve(r);
         });
+
+        this.addUserData();
+        return this.object3D;
     }
 
     applyTransform() {
