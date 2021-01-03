@@ -178,14 +178,16 @@ class Part extends Shape {
         }
     }
 
-    async generateMaterialFromSubMesh(subMesh) {
+    async generateMaterialFromSubMesh(subMesh, name = "") {
         let dif = await TextureLoader.load(this.uuidDatabase.contentProvider.expandPathPlaceholders(subMesh.textureList[0], this.blueprintChild.shapeId), this.uuidDatabase);
         dif = TextureLoader.cloneTexture(dif); // Clone the texture so colors can be applied to all shapes that use this texture
         TextureLoader.applyColor(dif, this.color);
 
-        return this.material = new THREE.MeshBasicMaterial({
+        let material = new THREE.MeshBasicMaterial({
             map: dif
         });
+        material.name = name;
+        return material;
     }
 
     async generateObject3D() {
@@ -210,21 +212,43 @@ class Part extends Shape {
                 for (let object of object) {
                     let subMesh = lod.subMeshList[i++];
 
-                    object.material = await this.generateMaterialFromSubMesh(subMesh);
+                    object.material = await this.generateMaterialFromSubMesh(subMesh, `subMeshList[${i}]`);
                 }
             } else if (lod.subMeshMap) {
+                console.log(this.blueprintChild.shapeId);
+
                 let objects = {};
                 r.traverse((object) => {
                     if (object.material) {
-                        objects[object.material.name] = object;
+                        if (Array.isArray(object.material)) {
+                            for (let i in object.material) {
+                                let mat = object.material[i];
+
+                                objects[mat.name] = {
+                                    object: object,
+                                    index: i
+                                };
+                            }
+                        } else {
+                            objects[object.material.name] = {
+                                object: object
+                            };
+                        }
+                        console.log(object);
                     }
                 });
 
                 for (let [name, object] of Object.entries(objects)) {
                     let subMesh = lod.subMeshMap[name];
 
+                    console.log(subMesh, name, object);
+
                     if (subMesh) {
-                        object.material = await this.generateMaterialFromSubMesh(subMesh);
+                        if (object.index) { // object.object.material is a list of materials
+                            object.object.material[object.index] = await this.generateMaterialFromSubMesh(subMesh, name);
+                        } else {
+                            object.object.material = await this.generateMaterialFromSubMesh(subMesh, name);
+                        }
                     }
                 }
             } else {
