@@ -33,6 +33,8 @@ class TextureLoader {
             loader.load(url, (texture) => {
                 console.log("[TextureLoader] Loaded", url, texture);
 
+                texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+
                 let toReturn = texture;
 
                 if (ext === ".tga") {
@@ -62,7 +64,9 @@ class TextureLoader {
         let ctx = image.getContext("2d");
         ctx.drawImage(texture.image, 0, 0);
 
-        let cloned = new THREE.CanvasTexture(image);
+        let cloned = new THREE.CanvasTexture().copy(texture);
+        cloned.image = image;
+
         // console.log("Cloned", cloned);
         return cloned;
     }
