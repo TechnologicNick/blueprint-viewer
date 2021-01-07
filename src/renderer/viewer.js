@@ -27,14 +27,16 @@ class Viewer {
         return this.bp;
     }
 
-    init() {
+    init(canvasContainer) {
+        this.canvasContainer = canvasContainer;
+
         this.renderer = new THREE.WebGLRenderer( { antialias: true } );
         this.renderer.setSize( window.innerWidth, window.innerHeight );
-        document.getElementById("canvas-container").appendChild( this.renderer.domElement );
+        this.canvasContainer.appendChild( this.renderer.domElement );
 
         this.stats = new Stats();
         this.stats.showPanel( 1 ); // 0: fps, 1: ms, 2: mb, 3+: custom
-        document.getElementById("canvas-container").appendChild( this.stats.dom );
+        this.canvasContainer.appendChild( this.stats.dom );
 
         this.scene = new THREE.Scene();
         this.scene.background = new THREE.Color( 0x222222 );
@@ -44,6 +46,13 @@ class Viewer {
         this.camera.position.set(0, 0, 0);
 
         this.controls = new THREE.OrbitControls( this.camera, this.renderer.domElement );
+
+        this.resizeObserver = new ResizeObserver((entries, observer) => {
+            for (let entry of entries) {
+                this.onResize(entry.contentRect.width, entry.contentRect.height);
+            }
+        });
+        this.resizeObserver.observe(this.canvasContainer);
     }
 
     async generateMeshes() {
@@ -143,6 +152,16 @@ class Viewer {
         // console.log(this.scene.children);
 
         this.stats.end();
+    }
+
+    onResize(width, height) {
+        // Update size
+        this.camera.aspect = width / height;
+        this.camera.updateProjectionMatrix();
+        this.renderer.setSize(width, height);
+
+        // Render to prevent flickering
+        this.update();
     }
 }
 
