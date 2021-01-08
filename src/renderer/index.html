@@ -2,12 +2,17 @@
 <html>
     <head>
         <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>Hello World!</title>
-        <link rel="stylesheet" href="index.css">
-        <!-- <script type="module" src="viewer.js"></script> -->
+        <link rel="stylesheet" href="css/bulma.css">
         <script defer src="index.js"></script>
     </head>
     <body>
-        <div id="canvas-container"></div>
+        <div class="blueprint-viewer">
+            <div class="buttons-overlay buttons">
+                <a id="export" class="button is-primary">Export</a>
+            </div>
+            <div id="canvas-container"></div>
+        </div>
     </body>
 </html>
