@@ -7,6 +7,7 @@ const Stats = require("stats.js");
 
 const Body = require("./body.js");
 const { Shape } = require("./shape.js");
+const Exporter = require("./exporter.js");
 
 class Viewer {
     constructor(contentProvider, uuidDatabase) {
@@ -16,7 +17,7 @@ class Viewer {
 
     loadBlueprintFromFile(pathDir) {
         this.bp = this.contentProvider.loadBlueprintFromFile(pathDir);
-        // console.log("loaded", this.bp);
+        this.scene.name = this.bp.description.name;
 
         return this.bp;
     }
@@ -27,8 +28,9 @@ class Viewer {
         return this.bp;
     }
 
-    init(canvasContainer) {
-        this.canvasContainer = canvasContainer;
+    init(domElement) {
+        this.domElement = domElement;
+        this.canvasContainer = this.domElement.querySelector(".canvas-container");
 
         this.renderer = new THREE.WebGLRenderer( { antialias: true } );
         this.renderer.setSize( window.innerWidth, window.innerHeight );
@@ -53,6 +55,10 @@ class Viewer {
             }
         });
         this.resizeObserver.observe(this.canvasContainer);
+
+        this.domElement.querySelector(".btn-export").onclick = () => {
+            this.export();
+        };
     }
 
     async generateMeshes() {
@@ -103,6 +109,10 @@ class Viewer {
         }, false);
 
         console.log("view() done");
+    }
+
+    export() {
+        Exporter.exportGLTF(this.scene);
     }
 
     centerCamera() {

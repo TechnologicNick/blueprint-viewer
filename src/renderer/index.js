@@ -30,7 +30,7 @@ console.log(`Loaded ${modCount} mods with ${shapeCount} shapes`);
 
 let db = new UuidDatabase(contentProvider);
 let vwr = new Viewer(contentProvider, db);
-vwr.init(document.getElementById("canvas-container"));
+vwr.init(document.querySelector(".blueprint-viewer"));
 
 vwr.loadBlueprintFromFile(TEST_BLUEPRINT_DIRECTORY);
 vwr.view().then(updateLoop);
