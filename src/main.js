@@ -36,6 +36,7 @@ const createWindow = () => {
 // Some APIs can only be used after this event occurs.
 app.on("ready", async (event, launchInfo) => {
     if (await PathHelper.findOrSelectSMInstallDir()) {
+        PathHelper.findUserDir();
         PathHelper.updatePaths();
         createWindow();
     } else {

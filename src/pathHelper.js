@@ -4,7 +4,8 @@ const path = require("path");
 const fs = require("fs");
 
 class PathHelper {
-    static STEAM;
+    static STEAM_DIR;
+    static WORKSHOP_DIR;
     static INSTALLATION_DIR;
 
     static GAME_DATA;
@@ -12,6 +13,13 @@ class PathHelper {
     static CHALLENGE_DATA;
 
     static USER_DIR;
+    static USER_BLUEPRINTS_DIR;
+    static USER_CHALLENGES_DIR;
+    static USER_MODS_DIR;
+    static USER_PROGRESS_DIR;
+    static USER_SAVE_DIR;
+    static USER_TILES_DIR;
+    static USER_WORLDS_DIR;
 
 
 
@@ -30,17 +38,18 @@ class PathHelper {
                     return;
                 }
 
-                this.STEAM = Object.values(result)[0].values.InstallPath.value;
+                this.STEAM_DIR = Object.values(result)[0].values.InstallPath.value;
+                this.WORKSHOP_DIR = path.join(this.STEAM_DIR, "steamapps", "workshop", "content", "387990");
                 
-                resolve(this.STEAM);
+                resolve(this.STEAM_DIR);
             });
         });
     }
 
     static getSteamLibraryFolders() {
-        let libFol = [ this.STEAM ];
+        let libFol = [ this.STEAM_DIR ];
 
-        let vdf = fs.readFileSync(path.join(this.STEAM, "steamapps", "libraryfolders.vdf")).toString();
+        let vdf = fs.readFileSync(path.join(this.STEAM_DIR, "steamapps", "libraryfolders.vdf")).toString();
         let matches = Array.from(vdf.matchAll(/^\t"\d+"\t\t"(.*?)"$/gm));
 
         // console.log(Array.from(matches));
@@ -81,7 +90,7 @@ class PathHelper {
             
                 if (result.response === 1) { // Yes
                     let selectedDirs = dialog.showOpenDialogSync(undefined, {
-                        defaultPath: this.STEAM,
+                        defaultPath: this.STEAM_DIR,
                         title: "Select Scrap Mechanic installation directory",
                         properties: ["openDirectory"]
                     });
@@ -123,6 +132,32 @@ class PathHelper {
         // Continuing the launch
         return true;
     }
+
+    static findUserDir() {
+        let base = path.join(process.env.APPDATA, "Axolot Games", "Scrap Mechanic", "User");
+
+        this.USER_DIR = fs.readdirSync(base) // Get all files and directories
+            .filter(dir => dir.match(/^User_\d+$/g)) // Check if it matches a Steam id
+            .map(dir => path.join(base, dir)) // Combine the base and directory name
+            .filter(dir => fs.lstatSync(dir).isDirectory()) // Check if it's a directory
+            .sort((a, b) => fs.statSync(b).mtime - fs.statSync(a).mtime) // Sort by modified date (high to low)
+            [0]; // Return the first
+        
+        // Set the other user directories
+        if (this.USER_DIR) {
+            for (let name of ["Blueprints", "Challenges", "Mods", "Progress", "Save", "Tiles", "Worlds"]){
+                let dir = path.join(this.USER_DIR, name);
+                if (fs.existsSync(dir)) {
+                    this[`USER_${name.toUpperCase()}_DIR`] = dir;
+                }
+            }
+        }
+
+        console.log(this);
+        return this.USER_DIR;
+    }
+
+
 
     static updatePaths() {
         this.GAME_DATA = path.join(this.INSTALLATION_DIR, "Data");
