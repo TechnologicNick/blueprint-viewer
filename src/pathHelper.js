@@ -153,7 +153,6 @@ class PathHelper {
             }
         }
 
-        console.log(this);
         return this.USER_DIR;
     }
 
