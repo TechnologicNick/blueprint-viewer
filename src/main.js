@@ -1,8 +1,7 @@
 const { app, BrowserWindow, ipcMain, dialog } = require("electron");
 const path = require("path");
 const BlueprintManager = require("./blueprintManager.js");
-const WorkshopModManager = require("./workshopModManager.js");
-const PathHelper = require("./pathHelper.js");
+const { PathHelper, WorkshopModManager } = require("scrap-mechanic-common");
 
 // console.log(__dirname);
 // require("electron-reload")(__dirname, {
