@@ -84,7 +84,7 @@ ipcMain.on("getShapesetDefinitions", (event, uuids) => {
 
 ipcMain.on("reloadMods", (event) => {
     // The returnValue has to be set, otherwise it'll hold up execution
-    event.returnValue = WorkshopModManager.reloadMods();
+    event.returnValue = WorkshopModManager.reloadMods(true);
 });
 
 ipcMain.on("expandPathPlaceholders", (event, p, shapeUuid) => {
