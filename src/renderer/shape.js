@@ -209,7 +209,7 @@ class Part extends Shape {
                 });
 
                 let i = 0;
-                for (let object of object) {
+                for (let object of objects) {
                     let subMesh = lod.subMeshList[i++];
 
                     object.material = await this.generateMaterialFromSubMesh(subMesh, `subMeshList[${i}]`);
