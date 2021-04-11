@@ -14,3 +14,4 @@ It currently only works by cloning the git and running `npm i` to install all th
 ## TODO
 * [ ] Cache textures for colors so they're not re-rendered for every blocks/part
 * [ ] Add texture coordinates to blocks
+* [ ] Add .mesh file loader
