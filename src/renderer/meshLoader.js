@@ -2,10 +2,8 @@ const fs = require("fs");
 const path = require("path");
 const THREE = require("three");
 
-// Hack to load a library required by FBXLoader.js
-let Zlib = {};
-eval(fs.readFileSync("./node_modules/three/examples/js/libs/inflate.min.js").toString());
-var Inflate = this.Zlib.Inflate;
+// Load a library required by FBXLoader.js
+const fflate = require("three/examples/js/libs/fflate.min.js");
 
 eval(fs.readFileSync("./node_modules/three/examples/js/loaders/OBJLoader.js").toString()); // Hack that adds THREE.OBJLoader
 eval(fs.readFileSync("./node_modules/three/examples/js/loaders/FBXLoader.js").toString()); // Hack that adds THREE.FBXLoader

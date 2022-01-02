@@ -55,31 +55,31 @@ class TextureLoader {
     }
 
     static cloneTexture(texture) {
-        if (!(texture.image instanceof OffscreenCanvas)) {
-            console.warn("Can't clone texture because it's not an OffscreenCanvas!", texture);
+        if (!(texture instanceof THREE.DataTexture)) {
+            console.warn("Can't clone texture because it's not a DataTexture!", texture);
             return texture;
         }
 
-        let image = new OffscreenCanvas(texture.image.width, texture.image.height);
-        let ctx = image.getContext("2d");
-        ctx.drawImage(texture.image, 0, 0);
+        let cloned = new THREE.DataTexture().copy(texture);
+        let { data, width, height } = texture.image;
+        cloned.image = {
+            data: Uint8Array.from(data),
+            width,
+            height,
+        };
 
-        let cloned = new THREE.CanvasTexture().copy(texture);
-        cloned.image = image;
+        cloned.needsUpdate = true;
 
-        // console.log("Cloned", cloned);
         return cloned;
     }
 
     static applyColor(texture, color) {
-        if (!(texture.image instanceof OffscreenCanvas)) {
-            console.warn("Can't apply color to texture because it's not an OffscreenCanvas!", texture);
+        if (!(texture instanceof THREE.DataTexture)) {
+            console.warn("Can't apply color to texture because it's not a DataTexture!", texture);
             return texture;
         }
 
-        let ctx = texture.image.getContext("2d");
-        let imageData = ctx.getImageData(0, 0, texture.image.width, texture.image.height);
-        console.log(imageData);
+        let imageData = texture.image;
 
         if (imageData.data.length / (imageData.width * imageData.height) !== 4) { // check if 4 bytes per pixel
             console.error("Texture doesn't have an alpha channel!");
@@ -91,8 +91,6 @@ class TextureLoader {
                 imageData.data[i + 2] = imageData.data[i + 2] + (255-a) * color.b;
                 imageData.data[i + 3] = 255;
             }
-
-            ctx.putImageData(imageData, 0, 0);
         }
 
         return texture;

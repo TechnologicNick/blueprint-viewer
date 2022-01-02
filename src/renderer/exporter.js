@@ -1,6 +1,6 @@
 const fs = require("fs");
 const THREE = require("three");
-eval(fs.readFileSync("./lib/three/examples/js/exporters/GLTFExporter.js").toString()); // Hack that adds the custom THREE.GLTFExporter
+eval(fs.readFileSync("./node_modules/three/examples/js/exporters/GLTFExporter.js").toString()); // Hack that adds the THREE.GLTFExporter
 
 class Exporter {
     static exportGLTF(scene, options = {}) {
@@ -21,7 +21,7 @@ class Exporter {
                 this.saveFile(blob, `${scene.name.replace(/ /g,"_")}_exported.gltf`);
             }
 
-        }, options);
+        }, console.error, options);
     }
 
     static saveFile(blob, filename) {
