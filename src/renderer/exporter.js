@@ -16,12 +16,12 @@ class Exporter {
                 this.saveFile(blob, `${scene.name.replace(/ /g,"_")}_exported.glb`);
             } else {
                 let output = JSON.stringify(result, null, '\t');
-                let blob = new Blob([result], {type: "text/plain"});
+                let blob = new Blob([output], {type: "text/plain"});
 
                 this.saveFile(blob, `${scene.name.replace(/ /g,"_")}_exported.gltf`);
             }
 
-        }, console.error, options);
+        }, options);
     }
 
     static saveFile(blob, filename) {

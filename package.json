@@ -52,7 +52,7 @@
     "fflate": "^0.7.2",
     "scrap-mechanic-common": "^1.2.3",
     "stats.js": "^0.17.0",
-    "three": "^0.136.0"
+    "three": "^0.125.0"
   },
   "devDependencies": {
     "@electron-forge/cli": "^6.0.0-beta.61",
