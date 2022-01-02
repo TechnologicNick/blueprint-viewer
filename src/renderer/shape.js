@@ -95,6 +95,7 @@ class Shape {
 
     addUserData() {
         this.object3D.userData.shape = this;
+        this.object3D.userData.toJSON = () => { return {}; };
         
         let center = new THREE.Group();
         center.name = "shapeCenter";
